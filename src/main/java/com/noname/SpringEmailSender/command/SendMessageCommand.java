@@ -7,7 +7,6 @@ public class SendMessageCommand implements Command {
     private static int messagesSent = 0;
     @Override
     public void execute() {
-        CommandExecutor.execute(ConsoleHelper.askOperation(1));
     }
 
     public static String getReport() {
