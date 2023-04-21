@@ -41,6 +41,9 @@ public class EmailSenderService {
     public int sendSimpleEmailForAll() {
         int counter = 0;
         List<String> addressees = getAddresses();
+        if (addressees.isEmpty()) {
+            return 0;
+        }
         Map<String, String> emailContent = getEmailContent();
         String subject = emailContent.get("Subject");
         String body = emailContent.get("Body");
