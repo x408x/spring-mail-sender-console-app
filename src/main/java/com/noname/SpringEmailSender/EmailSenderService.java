@@ -1,6 +1,7 @@
 package com.noname.SpringEmailSender;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -17,10 +18,12 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@Scope("singleton")
 public class EmailSenderService {
     private static final Path ADDRESSES_FILE_PATH = Paths.get("src/main/resources/addressees.txt");
     private static final Path SUBJECT_FILE_PATH = Paths.get("src/main/resources/subject.txt");
     private static final Path BODY_FILE_PATH = Paths.get("src/main/resources/body.txt");
+    private int emailsCounter = 0;
     @Autowired
     private JavaMailSender mailSender;
 
@@ -32,9 +35,11 @@ public class EmailSenderService {
         message.setText(body);
 
         mailSender.send(message);
+        this.emailsCounter++;
     }
 
-    public void sendSimpleEmailForAll() {
+    public int sendSimpleEmailForAll() {
+        int counter = 0;
         List<String> addressees = getAddresses();
         Map<String, String> emailContent = getEmailContent();
         String subject = emailContent.get("Subject");
@@ -42,8 +47,10 @@ public class EmailSenderService {
         if (!(addressees.isEmpty())) {
             for (String address : addressees) {
                 sendSimpleEmail(address, subject, body);
+                counter++;
             }
         }
+        return counter;
     }
 
     public Map<String, String> getEmailContent() {
@@ -95,5 +102,16 @@ public class EmailSenderService {
             throw new RuntimeException(e);
         }
         return result;
+    }
+    public int getEmailsCounter() {
+        return emailsCounter;
+    }
+
+    public String getReport() {
+        String emailWord = "emails";
+        if (emailsCounter <= 1) {
+            emailWord = "email";
+        }
+        return String.format("-> You sent %d %s in this session.", emailsCounter, emailWord);
     }
 }

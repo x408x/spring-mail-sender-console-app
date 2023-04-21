@@ -3,6 +3,7 @@ package com.noname.SpringEmailSender;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
 public class ConsoleHelper {
     private static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -24,6 +25,7 @@ public class ConsoleHelper {
 
     public static Operation askOperation() {
         while (true) {
+            writeMessage("----------------------------------------------------------------------------------");
             writeMessage(SELECT_NUMBER);
             writeMessage(OPERATIONS);
             String iString = ConsoleHelper.readString().trim().toUpperCase();
@@ -36,6 +38,12 @@ public class ConsoleHelper {
             } catch (IllegalArgumentException e) {
                 ConsoleHelper.writeMessage("Please specify valid data.");
             }
+        }
+    }
+
+    public static void writeAddressesList(List<String> addresses) {
+        for (String address : addresses) {
+            writeMessage(address);
         }
     }
 }
