@@ -18,6 +18,9 @@ import java.util.Map;
 
 @Service
 public class EmailSenderService {
+    private static final Path ADDRESSES_FILE_PATH = Paths.get("src/main/resources/addressees.txt");
+    private static final Path SUBJECT_FILE_PATH = Paths.get("src/main/resources/subject.txt");
+    private static final Path BODY_FILE_PATH = Paths.get("src/main/resources/body.txt");
     @Autowired
     private JavaMailSender mailSender;
 
@@ -29,7 +32,18 @@ public class EmailSenderService {
         message.setText(body);
 
         mailSender.send(message);
-        ConsoleHelper.writeMessage("Message was send!");
+    }
+
+    public void sendSimpleEmailForAll() {
+        List<String> addressees = getAddresses();
+        Map<String, String> emailContent = getEmailContent();
+        String subject = emailContent.get("Subject");
+        String body = emailContent.get("Body");
+        if (!(addressees.isEmpty())) {
+            for (String address : addressees) {
+                sendSimpleEmail(address, subject, body);
+            }
+        }
     }
 
     public Map<String, String> getEmailContent() {
@@ -37,21 +51,19 @@ public class EmailSenderService {
         StringBuilder subject = new StringBuilder();
         StringBuilder body = new StringBuilder();
         try {
-            Path pathText = Paths.get("src/main/resources/text.txt");
-            if (Files.notExists(pathText)) {
-                Files.createFile(pathText);
+            if (Files.notExists(SUBJECT_FILE_PATH)) {
+                Files.createFile(SUBJECT_FILE_PATH);
             }
-            Path pathSubject = Paths.get("src/main/resources/subject.txt");
-            if (Files.notExists(pathSubject)) {
-                Files.createFile(pathSubject);
+            if (Files.notExists(BODY_FILE_PATH)) {
+                Files.createFile(BODY_FILE_PATH);
             }
-            try (BufferedReader readerSubject = new BufferedReader(new FileReader(pathSubject.toFile()));
-                 BufferedReader readerText = new BufferedReader(new FileReader(pathText.toFile()))) {
-                while (readerSubject.ready()) {
-                    subject.append(readerSubject.readLine());
+            try (BufferedReader subjectReader = new BufferedReader(new FileReader(SUBJECT_FILE_PATH.toFile()));
+                 BufferedReader bodyReader = new BufferedReader(new FileReader(BODY_FILE_PATH.toFile()))) {
+                while (subjectReader.ready()) {
+                    subject.append(subjectReader.readLine());
                 }
-                while (readerText.ready()) {
-                    body.append(readerText.readLine());
+                while (bodyReader.ready()) {
+                    body.append(bodyReader.readLine());
                 }
             }
         } catch (IOException e) {
@@ -71,11 +83,10 @@ public class EmailSenderService {
     public List<String> getAddresses() {
         List<String> result = new ArrayList<>();
         try {
-            Path pathAddressees = Paths.get("src/main/resources/addressees.txt");
-            if (Files.notExists(pathAddressees)) {
-                Files.createFile(pathAddressees);
+            if (Files.notExists(ADDRESSES_FILE_PATH)) {
+                Files.createFile(ADDRESSES_FILE_PATH);
             }
-            try (BufferedReader readerAddressees = new BufferedReader(new FileReader(pathAddressees.toFile()))) {
+            try (BufferedReader readerAddressees = new BufferedReader(new FileReader(ADDRESSES_FILE_PATH.toFile()))) {
                 while (readerAddressees.ready()) {
                     result.add(readerAddressees.readLine());
                 }

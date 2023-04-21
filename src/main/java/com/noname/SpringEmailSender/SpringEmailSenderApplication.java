@@ -34,14 +34,7 @@ public class SpringEmailSenderApplication {
 
 	@EventListener(ApplicationReadyEvent.class)
 	public void sendMail() throws MessagingException {
-		List<String> addressees = senderService.getAddresses();
-		Map<String, String> emailContent = senderService.getEmailContent();
-		String subject = emailContent.get("Subject");
-		String body = emailContent.get("Body");
-		if (!(addressees.isEmpty())) {
-			for (String address : addressees) {
-				senderService.sendSimpleEmail(address, subject, body);
-			}
-		}
+		senderService.sendSimpleEmailForAll();
+		ConsoleHelper.writeMessage("Messages were send!");
 	}
 }
