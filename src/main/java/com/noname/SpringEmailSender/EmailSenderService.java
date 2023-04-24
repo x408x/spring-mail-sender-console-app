@@ -38,8 +38,18 @@ public class EmailSenderService {
         this.emailsCounter++;
     }
 
+    public void sendSimpleEmail(String[] toEmail, String subject, String body) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("no-reply@gmail.com");
+        message.setTo(toEmail);
+        message.setSubject(subject);
+        message.setText(body);
+
+        mailSender.send(message);
+        this.emailsCounter++;
+    }
+
     public int sendSimpleEmailForAll() {
-        int counter = 0;
         List<String> addressees = getAddresses();
         if (addressees.isEmpty()) {
             return 0;
@@ -47,11 +57,11 @@ public class EmailSenderService {
         Map<String, String> emailContent = getEmailContent();
         String subject = emailContent.get("Subject");
         String body = emailContent.get("Body");
+        int counter = 0;
         if (!(addressees.isEmpty())) {
-            for (String address : addressees) {
-                sendSimpleEmail(address, subject, body);
-                counter++;
-            }
+            List<String> addressesList = getAddresses();
+            counter = addressesList.size();
+            sendSimpleEmail(addressesList.toArray(new String[counter]), subject, body);
         }
         return counter;
     }
